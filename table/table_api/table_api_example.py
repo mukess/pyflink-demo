@@ -1873,7 +1873,7 @@ if __name__ == '__main__':
     # group_by_window_agg_streaming()
     # over_window_agg_streaming()
     # distinct_agg_batch()
-    distinct_agg_streaming()
+    # distinct_agg_streaming()
     # distinct_batch()
     # distinct_streaming()  # not supported now
     # inner_join_batch()
