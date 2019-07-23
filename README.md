@@ -1,10 +1,32 @@
-## Requirements
+# pyflink-demo
+This project is to help users easier to write their pyflink job.
+
+**contents**
+
+- [Quick Start](#quick-start)
+  + [Setup](#setup)
+    + [Requirements](#requirements)
+    + [Install python2](#install-python2)
+    + [Install pip](#install-pip)
+    + [Install java 8](#install-java-8)
+    + [Install maven](#install-maven)
+  + [Build PyFlink](#build-pyflink)
+  + [Prepare Kafka](#prepare-kafka)
+  + [Prepare ElasticSearch](#prepare-elasticsearch)
+  + [Install Dependency](#install-dependency)
+  + [Run Demo](#run-demo)
+
+## Quick Start
+
+### Setup
+
+#### Requirements
 1. python2.7 or python3
 2. pip
 3. java 1.8
 4. maven version >=3.3.0
 
-### Install python2
+#### Install python2
 
 macOS
 ```shell
@@ -17,7 +39,7 @@ Ubuntu
 sudo apt install python-dev
 ```
 
-### Install pip
+#### Install pip
 
 macOS
 
@@ -31,11 +53,11 @@ Ubuntu
 sudo apt install python-pip
 ```
 
-### Install java 8
+#### Install java 8
 
 [java download page](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
-### Install maven
+#### Install maven
 
 maven version >=3.3.0
 
@@ -53,7 +75,7 @@ export PATH=${PATH}:${MAVEN_HOME}/bin
 ```
 
 
-## Build PyFlink
+### Build PyFlink
 
 If you want to build a PyFlink package that can be used for pip installation, you need to build Flink jars first, as described in https://ci.apache.org/projects/flink/flink-docs-master/flinkDev/building.html
 
@@ -91,7 +113,7 @@ The sdist and wheel package will be found under `./flink-python/dist/`. Either o
 pip install dist/*.tar.gz
 ```
 
-## Prepare Kafka
+### Prepare Kafka
 Some demo choose kafka as source, so you need to install and run kafka in local host. the version we use kafka_2.11-0.11 (https://archive.apache.org/dist/kafka/0.11.0.3/kafka_2.11-0.11.0.3.tgz)
 you use the following command to download:
 
@@ -116,7 +138,7 @@ Finally, you start kafka server:
 bin/kafka-server-start.sh config/server.properties
 ```
 
-## Prepare ElasticSearch
+### Prepare ElasticSearch
 Some demo choose Elasticsearch as sink, so you need to install and run Elasticsearch in local host. the version we use elasticsearch-6.0.1 (https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz)
 you use the following command to download:
 
@@ -136,13 +158,13 @@ Finally, you start ElasticSearch:
 ./bin/elasticsearch
 ```
 
-## Install Dependency
+### Install Dependency
 Install environment dependency
 
 ```shell
 pip install -r requirements.txt
 ```
 
-## Run demo
+### Run demo
 1. You can use PyCharm to open the project and choose the python interpreter as the python which match the pip tool which install the pyflink and dependency in requirements.txt.
 2. Demos about table api is in the table_api_example.py which is in the directory of table/table_api
