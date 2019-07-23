@@ -15,6 +15,8 @@ This project is to help users easier to write their pyflink job.
   + [Prepare ElasticSearch](#prepare-elasticsearch)
   + [Install Dependency](#install-dependency)
   + [Run Demo](#run-demo)
+    + [[optional] Importing the project on PyCharm](#optionalimporting-the-project-on-pycharm)
+    + [Run pyflink table api example](#run-pyflink-table-api-example)
 
 ## Quick Start
 
@@ -166,5 +168,22 @@ pip install -r requirements.txt
 ```
 
 ### Run demo
-1. You can use PyCharm to open the project and choose the python interpreter as the python which match the pip tool which install the pyflink and dependency in requirements.txt.
-2. Demos about table api is in the table_api_example.py which is in the directory of table/table_api
+#### [optional]Importing the project on PyCharm
+You can use PyCharm to open the project and choose the python interpreter as the python which match the pip tool which install the pyflink and dependency in requirements.txt.
+The following documentation describes the steps to setup PyCharm 2019.1.3 ([https://www.jetbrains.com/pycharm/download/](https://www.jetbrains.com/pycharm/download/))
+
+If you are in the PyCharm startup interface:
+1. Start PyCharm and choose "Open"
+2. Select the pyflink-demo cloned repository.
+3. Click on System interpreter in python interpreter option(Pycharm->Preference->python interpreter).
+4. Choose the python which have installed the packages of pyflink and dependencies in the requirements.txt
+
+If you have used PyCharm to open a project:
+1. Select "File -> Open"
+2. Select the pyflink-demo cloned repository.
+3. Click on System interpreter in python interpreter option(Pycharm->Preference->python interpreter).
+4. Choose the python which have installed the packages of pyflink and dependencies in the requirements.txt
+#### Run pyflink table api example 
+Demos about table api is in the table_api_example.py which is in the directory of table/table_api.
+Except for the prepare_environment method, every other method is about a complement pyflink table api example.
+You can run the specified method to test and verify the table api
