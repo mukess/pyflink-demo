@@ -61,7 +61,7 @@ Finally, you start kafka server:
 bin/kafka-server-start.sh config/server.properties
 ```
 
-# Prepare ElasticSearch
+## Prepare ElasticSearch
 Some demo choose Elasticsearch as sink, so you need to install and run Elasticsearch in local host. the version we use elasticsearch-6.0.1 (https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz)
 you use the following command to download:
 
