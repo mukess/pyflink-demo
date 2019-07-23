@@ -1,3 +1,58 @@
+## Requirements
+1. python2.7 or python3
+2. pip
+3. java 1.8
+4. maven version >=3.3.0
+
+### Install python2
+
+macOS
+```shell
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+brew install python@2 
+```
+Ubuntu
+```shell
+sudo apt install python-dev
+```
+
+### Install pip
+
+macOS
+
+```shell 
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python get-pip.py
+```
+
+Ubuntu
+```shell
+sudo apt install python-pip
+```
+
+### Install java 8
+
+[java download page](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+
+### Install maven
+
+maven version >=3.3.0
+
+[download maven page](http://maven.apache.org/download.cgi)
+
+```shell
+tar -xvf apache-maven-3.6.1-bin.tar.gz
+mv -rf apache-maven-3.6.1 /usr/local/
+```
+configuration environment variables
+```shell
+MAVEN_HOME=/usr/local/apache-maven-3.6.1
+export MAVEN_HOME
+export PATH=${PATH}:${MAVEN_HOME}/bin
+```
+
+
 ## Build PyFlink
 
 If you want to build a PyFlink package that can be used for pip installation, you need to build Flink jars first, as described in https://ci.apache.org/projects/flink/flink-docs-master/flinkDev/building.html
