@@ -12,6 +12,12 @@ Then you need to copy the jar package flink-sql-connector-kafka-0.11_*-SNAPSHOT.
 cp flink-connectors/flink-sql-connector-kafka-0.11/target/flink-sql-connector-kafka-0.11_*-SNAPSHOT.jar build-target/lib
 ```
 
+Then you need to copy the jar package flink-connector-elasticsearch6_*-SNAPSHOT.jar in the directory of flink-connectors/flink-connector-elasticsearch6
+
+```shell
+cp flink-connectors/flink-connector-elasticsearch6/target/flink-connector-elasticsearch6_*-SNAPSHOT.jar build-target/lib
+```
+
 Next you need to copy the jar package flink-json-*-SNAPSHOT-sql-jar.jar in the directory of flink-formats/flink-json
 
 ```shell
@@ -55,10 +61,33 @@ Finally, you start kafka server:
 bin/kafka-server-start.sh config/server.properties
 ```
 
-
-## Install Dependency
-Install kafka-python
+# Prepare ElasticSearch
+Some demo choose Elasticsearch as sink, so you need to install and run Elasticsearch in local host. the version we use elasticsearch-6.0.1 (https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz)
+you use the following command to download:
 
 ```shell
-pip install kafka-python
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz
 ```
+
+Then you depress the tar package:
+
+```shell
+tar zxvf https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz
+```
+
+Finally, you start ElasticSearch:
+
+```shell
+./bin/elasticsearch
+```
+
+## Install Dependency
+Install environment dependency
+
+```shell
+pip install -r requirements.txt
+```
+
+## Run demo
+1. You can use PyCharm to open the project and choose the python interpreter as the python which match the pip tool which install the pyflink and dependency in requirements.txt.
+2. Demos about table api is in the table_api_example.py which is in the directory of table/table_api

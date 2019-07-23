@@ -4,6 +4,7 @@ from pyflink.dataset import *
 from pyflink.table.window import *
 from pyflink.table.descriptors import *
 from utils import kafka_utils
+from utils import elastic_search_utils
 import os
 
 # b_env = ExecutionEnvironment.get_execution_environment()
@@ -13,6 +14,7 @@ import os
 # s_env.set_parallelism(1)
 # st_env = StreamTableEnvironment.create(s_env)
 source_file = '/tmp/table_orders.csv'
+elastic_search_used_method = ['group_by_agg_streaming', 'distinct_agg_streaming']
 
 
 def scan_batch():
@@ -635,8 +637,89 @@ def group_by_agg_batch():
 
 
 def group_by_agg_streaming():
-    # TODO:
-    pass
+    s_env = StreamExecutionEnvironment.get_execution_environment()
+    s_env.set_parallelism(1)
+    st_env = StreamTableEnvironment.create(s_env)
+    st_env.register_table_source("Orders",
+                                 CsvTableSource(source_file,
+                                                ["a", "b", "c", "rowtime"],
+                                                [DataTypes.STRING(),
+                                                 DataTypes.INT(),
+                                                 DataTypes.INT(),
+                                                 DataTypes.TIMESTAMP()]))
+    st_env.connect(
+        Elasticsearch()
+        .version("6")
+        .host("localhost", 9200, "http")
+        .index("group_by_agg_streaming")
+        .document_type('pyflink')
+        .key_delimiter("_")
+        .key_null_literal("null")
+        .failure_handler_ignore()
+        .disable_flush_on_checkpoint()
+        .bulk_flush_max_actions(2)
+        .bulk_flush_max_size("1 mb")
+        .bulk_flush_interval(5000)
+        ) \
+        .with_schema(
+            Schema()
+            .field("a", DataTypes.STRING())
+            .field("b", DataTypes.STRING())
+        ) \
+        .with_format(
+           Json()
+           .derive_schema()
+        ) \
+        .in_upsert_mode() \
+        .register_table_sink("result")
+
+    orders = st_env.scan("Orders")
+    groub_by_table = orders.group_by("a").select("a, b.sum as d")
+    # Because the schema of index user in elasticsearch is
+    # {"a":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},
+    # "b":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}
+    # so we need to cast the type in our demo.
+    st_env.register_table("group_table", groub_by_table)
+    result = st_env.sql_query("SELECT a, CAST(d AS VARCHAR) from group_table")
+    result.insert_into("result")
+    st_env.execute("group by agg streaming")
+    # curl -X GET 'http://localhost:9200/group_by_agg_streaming/_search'
+    # {
+    #     "took": 2,
+    #     "timed_out": false,
+    #     "_shards": {
+    #         "total": 5,
+    #         "successful": 5,
+    #         "skipped": 0,
+    #         "failed": 0
+    #     },
+    #     "hits": {
+    #         "total": 2,
+    #         "max_score": 1,
+    #         "hits": [
+    #             {
+    #                 "_index": "group_by_agg_streaming",
+    #                 "_type": "group_by_agg_streaming",
+    #                 "_id": "b",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "b",
+    #                     "b": "6"
+    #                 }
+    #             },
+    #             {
+    #                 "_index": "group_by_agg_streaming",
+    #                 "_type": "group_by_agg_streaming",
+    #                 "_id": "a",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "a",
+    #                     "b": "13"
+    #                 }
+    #             }
+    #         ]
+    #     }
+    # }
 
 
 def group_by_window_agg_batch():
@@ -832,7 +915,184 @@ def over_window_agg_streaming():
     # rows is similar to time, you can refer to the doc.
 
 
-# TODO:distinct agg
+# DISTINCT window aggregates are currently not supported in Batch mode.
+def distinct_agg_batch():
+    b_env = ExecutionEnvironment.get_execution_environment()
+    b_env.set_parallelism(1)
+    bt_env = BatchTableEnvironment.create(b_env)
+    result_file = "/tmp/table_distinct_agg_batch.csv"
+    if os.path.exists(result_file):
+        os.remove(result_file)
+    bt_env.register_table_source("Orders",
+                                 CsvTableSource(source_file,
+                                                ["a", "b", "c", "rowtime"],
+                                                [DataTypes.STRING(),
+                                                 DataTypes.INT(),
+                                                 DataTypes.INT(),
+                                                 DataTypes.TIMESTAMP()]))
+    bt_env.register_table_sink("result",
+                               CsvTableSink(["b"],
+                                            [DataTypes.INT()],
+                                            result_file))
+    orders = bt_env.scan("Orders")
+    result = orders.group_by("a") \
+        .select("b.sum.distinct as d")
+    result.insert_into("result")
+    bt_env.execute("distinct agg batch")
+    # cat /tmp/table_distinct_batch.csv
+    # 13
+    # 6
+
+
+def distinct_agg_streaming():
+    s_env = StreamExecutionEnvironment.get_execution_environment()
+    s_env.set_parallelism(1)
+    s_env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
+    st_env = StreamTableEnvironment.create(s_env)
+    st_env \
+        .connect(  # declare the external system to connect to
+            Kafka()
+            .version("0.11")
+            .topic("user")
+            .start_from_earliest()
+            .property("zookeeper.connect", "localhost:2181")
+            .property("bootstrap.servers", "localhost:9092")
+        ) \
+        .with_format(  # declare a format for this system
+            Json()
+            .fail_on_missing_field(True)
+            .json_schema(
+                "{"
+                "  type: 'object',"
+                "  properties: {"
+                "    a: {"
+                "      type: 'string'"
+                "    },"
+                "    b: {"
+                "      type: 'string'"
+                "    },"
+                "    c: {"
+                "      type: 'string'"
+                "    },"
+                "    time: {"
+                "      type: 'string',"
+                "      format: 'date-time'"
+                "    }"
+                "  }"
+                "}"
+             )
+         ) \
+        .with_schema(  # declare the schema of the table
+             Schema()
+             .field("rowtime", DataTypes.TIMESTAMP())
+             .rowtime(
+                Rowtime()
+                .timestamps_from_field("time")
+                .watermarks_periodic_bounded(60000))
+             .field("a", DataTypes.STRING())
+             .field("b", DataTypes.STRING())
+             .field("c", DataTypes.STRING())
+         ) \
+        .in_append_mode() \
+        .register_table_source("Orders")
+    st_env.connect(
+        Elasticsearch()
+        .version("6")
+        .host("localhost", 9200, "http")
+        .index("distinct_agg_streaming")
+        .document_type('pyflink')
+        .key_delimiter("_")
+        .key_null_literal("null")
+        .failure_handler_ignore()
+        .disable_flush_on_checkpoint()
+        .bulk_flush_max_actions(2)
+        .bulk_flush_max_size("1 mb")
+        .bulk_flush_interval(5000)
+        ) \
+        .with_schema(
+            Schema()
+            .field("a", DataTypes.STRING())
+            .field("b", DataTypes.STRING())
+        ) \
+        .with_format(
+           Json()
+           .derive_schema()
+        ) \
+        .in_upsert_mode() \
+        .register_table_sink("result")
+    orders = st_env.scan("Orders")
+    result = orders.window(Tumble.over("30.minutes").on("rowtime").alias("w")) \
+        .group_by("a, w").select("a, b.max.distinct as d")
+    result.insert_into("result")
+    st_env.execute("distinct agg streaming")
+    # curl -X GET 'http://localhost:9200/distinct_agg_streaming/_search'
+    # {
+    #     "took": 3,
+    #     "timed_out": false,
+    #     "_shards": {
+    #         "total": 5,
+    #         "successful": 5,
+    #         "skipped": 0,
+    #         "failed": 0
+    #     },
+    #     "hits": {
+    #         "total": 5,
+    #         "max_score": 1,
+    #         "hits": [
+    #             {
+    #                 "_index": "distinct_agg_streaming",
+    #                 "_type": "pyflink",
+    #                 "_id": "3zfsHWwBHRafi3KHm2Ve",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "a",
+    #                     "b": "3"
+    #                 }
+    #             },
+    #             {
+    #                 "_index": "distinct_agg_streaming",
+    #                 "_type": "pyflink",
+    #                 "_id": "4TfsHWwBHRafi3KHrmU-",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "b",
+    #                     "b": "4"
+    #                 }
+    #             },
+    #             {
+    #                 "_index": "distinct_agg_streaming",
+    #                 "_type": "pyflink",
+    #                 "_id": "4DfsHWwBHRafi3KHm2Ve",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "a",
+    #                     "b": "4"
+    #                 }
+    #             },
+    #             {
+    #                 "_index": "distinct_agg_streaming",
+    #                 "_type": "pyflink",
+    #                 "_id": "3TfsHWwBHRafi3KHm2Uf",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "a",
+    #                     "b": "1"
+    #                 }
+    #             },
+    #             {
+    #                 "_index": "distinct_agg_streaming",
+    #                 "_type": "pyflink",
+    #                 "_id": "3jfsHWwBHRafi3KHm2Uf",
+    #                 "_score": 1,
+    #                 "_source": {
+    #                     "a": "b",
+    #                     "b": "2"
+    #                 }
+    #             }
+    #         ]
+    #     }
+    # }
+
 
 def distinct_batch():
     b_env = ExecutionEnvironment.get_execution_environment()
@@ -865,13 +1125,9 @@ def distinct_batch():
 
 
 def distinct_streaming():
-    # TODO:
     s_env = StreamExecutionEnvironment.get_execution_environment()
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
-    result_file = "/tmp/table_distinct_streaming.csv"
-    if os.path.exists(result_file):
-        os.remove(result_file)
     st_env.register_table_source("Orders",
                                  CsvTableSource(source_file,
                                                 ["a", "b", "c", "rowtime"],
@@ -879,13 +1135,10 @@ def distinct_streaming():
                                                  DataTypes.INT(),
                                                  DataTypes.INT(),
                                                  DataTypes.TIMESTAMP()]))
-    st_env.register_table_sink("result",
-                               CsvTableSink(["b"],
-                                            [DataTypes.INT()],
-                                            result_file))
+
     orders = st_env.scan("Orders")
-    result = orders.select("b").distinct()
-    result.insert_into("result")
+    result = orders.select("a, b").distinct()
+    # TODO: need retract table sink
     st_env.execute("distinct streaming")
 
 
@@ -989,7 +1242,7 @@ def left_outer_join_streaming():
                                  ["d", "e", "f"]).select("d, e, f")
 
     result = left.left_outer_join(right, "a = d").select("a, b, e")
-    # TODO: sink
+    # TODO: need retract table sink
     st_env.execute("left outer join streaming")
 
 
@@ -1033,8 +1286,8 @@ def right_outer_join_streaming():
     right = st_env.from_elements([(1, "1b", "1bb"), (2, None, "2bb"), (1, "3b", "3bb"), (4, "4b", "4bb")],
                                  ["d", "e", "f"]).select("d, e, f")
 
-    result = left.right_outer_join(right, "a = d").select("a, b, e")
-    # TODO: sink
+    result = left.right_outer_join(right, "a = d").select("b, e")
+    # TODO: need retract table sink
     st_env.execute("right outer join streaming")
 
 
@@ -1082,7 +1335,7 @@ def full_outer_join_streaming():
 
     result = left.full_outer_join(right, "a = d").select("a, b, e")
     result.insert_into("result")
-    # TODO: sink
+    # TODO: need retract table sink
     st_env.execute("full outer join streaming")
 
 
@@ -1331,20 +1584,18 @@ def in_streaming():
     s_env = StreamExecutionEnvironment.get_execution_environment()
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
-    result_file = "/tmp/table_in_streaming.csv"
-    if os.path.exists(result_file):
-        os.remove(result_file)
     left = st_env.from_elements(
         [(1, "ra", "raa"), (2, "lb", "lbb"), (3, "", "lcc"), (2, "lb", "lbb"), (4, "ra", "raa")],
         ["a", "b", "c"]).select("a, b, c")
     right = st_env.from_elements([(1, "ra", "raa"), (2, "", "rbb"), (3, "rc", "rcc"), (1, "ra", "raa")],
                                  ["a", "b", "c"]).select("a")
 
-    result = left.where("a.in(%s)" % right)
+    result = left.where("a.in(%s)" % right).select("b, c")
     # another way
     # st_env.register_table("RightTable", right)
     # result = left.where("a.in(RightTable)")
-    # TODO: sink
+    # TODO: need retract table sink
+    result.insert_into("result")
     st_env.execute("in streaming")
 
 
@@ -1563,9 +1814,41 @@ def prepare_environment():
         for msg in msgs:
             kafka_utils.send_msg('user', msg)
 
+    mapping = '''
+    {
+        "mappings" : {
+              "pyflink" : {
+                "properties" : {
+                  "a" : {
+                    "type" : "text",
+                    "fields" : {
+                      "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                      }
+                    }
+                  },
+                  "b" : {
+                    "type" : "text",
+                    "fields" : {
+                      "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                      }
+                    }
+                  }
+                }
+              }
+        }
+    }
+    '''
+    for method in elastic_search_used_method:
+        elastic_search_utils.delete_index(method)
+        elastic_search_utils.create_index(method, mapping)
+
 
 if __name__ == '__main__':
-    # prepare_environment()
+    prepare_environment()
     # scan_batch()
     # scan_streaming()
     # select_batch()
@@ -1585,17 +1868,22 @@ if __name__ == '__main__':
     # rename_columns_batch()
     # rename_columns_streaming()
     # group_by_agg_batch()
+    # group_by_agg_streaming()
     # group_by_window_agg_batch()
-    over_window_agg_streaming()
+    # group_by_window_agg_streaming()
+    # over_window_agg_streaming()
+    # distinct_agg_batch()
+    distinct_agg_streaming()
     # distinct_batch()
+    # distinct_streaming()  # not supported now
     # inner_join_batch()
     # inner_join_streaming()
     # left_outer_join_batch()
-    # left_outer_join_streaming()
+    # left_outer_join_streaming()  # not supported now
     # right_outer_join_batch()
-    # right_outer_join_streaming()
+    # right_outer_join_streaming()  # not supported now
     # full_outer_join_batch()
-    # full_outer_join_streaming()
+    # full_outer_join_streaming()  # not supported now
     # union_batch()
     # union_all_batch()
     # union_all_streaming()
@@ -1604,7 +1892,7 @@ if __name__ == '__main__':
     # minus_batch()
     # minus_all_batch()
     # in_batch()
-    # in_streaming()
+    # in_streaming()  # not supported now
     # order_by_batch()
     # offset_and_fetch_batch()
     # tumble_row_window_batch()
