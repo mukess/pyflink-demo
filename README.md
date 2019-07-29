@@ -184,6 +184,4 @@ If you have used PyCharm to open a project:
 3. Click on System interpreter in python interpreter option(Pycharm->Preference->python interpreter).
 4. Choose the python which have installed the packages of pyflink and dependencies in the requirements.txt
 #### Run pyflink table api example 
-Demos about table api is in the table_api_example.py which is in the directory of table/table_api.
-Except for the prepare_environment method, every other method is about a complement pyflink table api example.
-You can run the specified method to test and verify the table api
+Demos about table api is in the pyflink-demo/table/batch directory and pyflink-demo/table/streaming directory.
