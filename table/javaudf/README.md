@@ -50,13 +50,13 @@ you need to cd to directory of build-target in flink source code.
 4. submit the python job:
 
 ```shell
-bin/flink run -py <pyflink-demo path>/table/udf/scalar_func_demo.py
+bin/flink run -py <pyflink-demo path>/table/javaudf/scalar_func_demo.py
 ```
 
 ```shell
-bin/flink run -py <pyflink-demo path>/table/udf/table_func_demo.py
+bin/flink run -py <pyflink-demo path>/table/javaudf/table_func_demo.py
 ```
 
 ```shell
-bin/flink run -py <pyflink-demo path>/table/udf/aggregate_func_demo.py.py
+bin/flink run -py <pyflink-demo path>/table/javaudf/aggregate_func_demo.py.py
 ```
