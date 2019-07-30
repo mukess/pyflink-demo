@@ -9,7 +9,7 @@ def select_streaming():
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_select_streaming.csv"
+    result_file = "/tmp/table_select_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
 
@@ -30,7 +30,7 @@ def select_streaming():
     result.insert_into("result")
     st_env.execute("select streaming")
 
-    # cat table/result/table_select_streaming.csv
+    # cat /tmp/table_select_streaming.csv
     # a,1
     # b,2
     # a,3

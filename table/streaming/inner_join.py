@@ -8,7 +8,7 @@ def inner_join_streaming():
     s_env = StreamExecutionEnvironment.get_execution_environment()
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
-    result_file = os.getcwd() + "/../result/table_inner_join_streaming.csv"
+    result_file = "/tmp/table_inner_join_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     left = st_env.from_elements(
@@ -26,7 +26,7 @@ def inner_join_streaming():
     result = left.join(right).where("a = d").select("a, b, e")
     result.insert_into("result")
     st_env.execute("inner join streaming")
-    # cat table/result/table_inner_join_streaming.csv
+    # cat /tmp/table_inner_join_streaming.csv
     # 1,1a,1b
     # 2,4b,
     # 2,2a,

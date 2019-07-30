@@ -9,7 +9,7 @@ def drop_columns_streaming():
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_drop_columns_streaming.csv"
+    result_file = "/tmp/table_drop_columns_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     st_env.register_table_source("Orders",
@@ -29,7 +29,7 @@ def drop_columns_streaming():
     result = orders.drop_columns("c")
     result.insert_into("result")
     st_env.execute("drop columns streaming")
-    # cat table/result/table_drop_columns_streaming.csv
+    # cat /tmp/table_drop_columns_streaming.csv
     # a,1,2013-01-01 00:14:13.0
     # b,2,2013-01-01 00:24:13.0
     # a,3,2013-01-01 00:34:13.0

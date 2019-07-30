@@ -8,9 +8,9 @@ def offset_and_fetch_batch():
     b_env = ExecutionEnvironment.get_execution_environment()
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
-    result_file_1 = os.getcwd() + "/../result/table_offset_and_fetch_batch_1.csv"
-    result_file_2 = os.getcwd() + "/../result/table_offset_and_fetch_batch_2.csv"
-    result_file_3 = os.getcwd() + "/../result/table_offset_and_fetch_batch_3.csv"
+    result_file_1 = "/tmp/table_offset_and_fetch_batch_1.csv"
+    result_file_2 = "/tmp/table_offset_and_fetch_batch_2.csv"
+    result_file_3 = "/tmp/table_offset_and_fetch_batch_3.csv"
     if os.path.exists(result_file_1):
         os.remove(result_file_1)
     if os.path.exists(result_file_2):
@@ -50,20 +50,20 @@ def offset_and_fetch_batch():
     ordered_table.offset(1).fetch(2).insert_into("result3")
 
     bt_env.execute("offset and fetch batch")
-    # cat table/result/able_offset_and_fetch_batch_1.csv
+    # cat /tmp/able_offset_and_fetch_batch_1.csv
     # 1,ra,raa
     # 2,lb,lbb
     # 2,lb,lbb
     # 3,,lcc
     # 4,ra,raa
 
-    # cat table/result/table_offset_and_fetch_batch_2.csv
+    # cat /tmp/table_offset_and_fetch_batch_2.csv
     # 2,lb,lbb
     # 2,lb,lbb
     # 3,,lcc
     # 4,ra,raa
 
-    # cat table/result/table_offset_and_fetch_batch_3.csv
+    # cat /tmp/table_offset_and_fetch_batch_3.csv
     # 2,lb,lbb
     # 2,lb,lbb
 

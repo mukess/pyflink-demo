@@ -8,7 +8,7 @@ def right_outer_join_batch():
     b_env = ExecutionEnvironment.get_execution_environment()
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
-    result_file = os.getcwd() + "/../result/table_right_outer_join_batch.csv"
+    result_file = "/tmp/table_right_outer_join_batch.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     left = bt_env.from_elements(
@@ -26,7 +26,7 @@ def right_outer_join_batch():
     result = left.right_outer_join(right, "a = d").select("a, b, e")
     result.insert_into("result")
     bt_env.execute("right outer join batch")
-    # cat table/result/table_right_outer_join_batch.csv
+    # cat /tmp/table_right_outer_join_batch.csv
     # 1,1a,1b
     # 1,1a,3b
     # 2,2a,

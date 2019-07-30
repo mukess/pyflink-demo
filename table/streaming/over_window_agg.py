@@ -11,7 +11,7 @@ def over_window_agg_streaming():
     s_env.set_parallelism(1)
     s_env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
     st_env = StreamTableEnvironment.create(s_env)
-    result_file = os.getcwd() + "/../result/table_over_window_agg_streaming.csv"
+    result_file = "/tmp/table_over_window_agg_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     st_env \
@@ -73,7 +73,7 @@ def over_window_agg_streaming():
         .select("a, max(b) over w, min(c) over w").insert_into("result")
 
     st_env.execute("over window agg streaming")
-    # cat table/result/table_over_window_agg_streaming.csv
+    # cat /tmp/table_over_window_agg_streaming.csv
     # a,1,1
     # b,2,2
     # a,3,1
@@ -94,4 +94,6 @@ def over_window_agg_streaming():
 
 
 if __name__ == '__main__':
+    from table.prepare_environment import prepare_env
+    prepare_env()
     over_window_agg_streaming()

@@ -8,7 +8,7 @@ def minus_batch():
     b_env = ExecutionEnvironment.get_execution_environment()
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
-    result_file = os.getcwd() + "/../result/table_minus_batch.csv"
+    result_file = "/tmp/table_minus_batch.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     left = bt_env.from_elements(
@@ -26,7 +26,7 @@ def minus_batch():
     result = left.minus(right)
     result.insert_into("result")
     bt_env.execute("minus batch")
-    # cat table/result/table_minus_batch.csv
+    # cat /tmp/table_minus_batch.csv
     # 2,lb,lbb
     # 3,,lcc
 

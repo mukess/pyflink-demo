@@ -9,7 +9,7 @@ def drop_columns_batch():
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_drop_columns_batch.csv"
+    result_file = "/tmp/table_drop_columns_batch.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     bt_env.register_table_source("Orders",

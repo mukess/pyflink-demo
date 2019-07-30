@@ -9,7 +9,7 @@ def scan_streaming():
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_scan_streaming.csv"
+    result_file = "/tmp/table_scan_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     st_env.register_table_source("Orders",

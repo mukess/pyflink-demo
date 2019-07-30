@@ -9,7 +9,7 @@ def rename_columns_streaming():
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_rename_columns_streaming.csv"
+    result_file = "/tmp/table_rename_columns_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     st_env.register_table_source("Orders",
@@ -28,7 +28,7 @@ def rename_columns_streaming():
     result = orders.rename_columns("a as a2, b as b2").select("a2, b2")
     result.insert_into("result")
     st_env.execute("rename columns streaming")
-    # cat table/result/table_rename_columns_streaming.csv
+    # cat /tmp/table_rename_columns_streaming.csv
     # a,1
     # b,2
     # a,3

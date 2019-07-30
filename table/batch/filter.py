@@ -9,7 +9,7 @@ def filter_batch():
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_filter_batch.csv"
+    result_file = "/tmp/table_filter_batch.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     bt_env.register_table_source("Orders",
@@ -30,7 +30,7 @@ def filter_batch():
     result = orders.filter("b % 2 === 0")
     result.insert_into("result")
     bt_env.execute("filter batch")
-    # cat table/result/table_filter_batch.csv
+    # cat /tmp/table_filter_batch.csv
     # b,2,2,2013-01-01 00:24:13.0
     # a,4,4,2013-01-01 01:14:13.0
     # b,4,5,2013-01-01 01:24:13.0

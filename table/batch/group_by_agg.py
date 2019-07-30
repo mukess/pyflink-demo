@@ -9,7 +9,7 @@ def group_by_agg_batch():
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_group_by_agg_batch.csv"
+    result_file = "/tmp/table_group_by_agg_batch.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     bt_env.register_table_source("Orders",
@@ -28,7 +28,7 @@ def group_by_agg_batch():
     result = orders.group_by("a").select("a, b.sum as d")
     result.insert_into("result")
     bt_env.execute("group by agg batch")
-    # cat table/result/table_group_by_agg_batch.csv
+    # cat /tmp/table_group_by_agg_batch.csv
     # a,13
     # b,6
 

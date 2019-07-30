@@ -8,7 +8,7 @@ def union_all_streaming():
     s_env = StreamExecutionEnvironment.get_execution_environment()
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
-    result_file = os.getcwd() + "/../result/table_union_all_streaming.csv"
+    result_file = "/tmp/table_union_all_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     left = st_env.from_elements(
@@ -26,7 +26,7 @@ def union_all_streaming():
     result = left.union_all(right)
     result.insert_into("result")
     st_env.execute("union all streaming")
-    # cat table/result/table_union_all_streaming.csv
+    # cat /tmp/table_union_all_streaming.csv
     # 1,1b,1bb
     # 2,,2bb
     # 1,3b,3bb

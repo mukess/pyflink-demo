@@ -9,7 +9,7 @@ def scan_batch():
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_scan_batch.csv"
+    result_file = "/tmp/table_scan_batch.csv"
 
     if os.path.exists(result_file):
         os.remove(result_file)
@@ -30,7 +30,7 @@ def scan_batch():
     orders = bt_env.scan("Orders")
     orders.insert_into("result")
     bt_env.execute("scan batch")
-    # cat table/result/table_scan_batch.csv
+    # cat /tmp/table_scan_batch.csv
     # a,1,1,2013-01-01 00:14:13.0
     # b,2,2,2013-01-01 00:24:13.0
     # a,3,3,2013-01-01 00:34:13.0

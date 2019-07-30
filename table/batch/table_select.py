@@ -9,7 +9,7 @@ def select_batch():
     b_env.set_parallelism(1)
     bt_env = BatchTableEnvironment.create(b_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_select_batch.csv"
+    result_file = "/tmp/table_select_batch.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
 
@@ -29,7 +29,7 @@ def select_batch():
     result = orders.select("a, b")
     result.insert_into("result")
     bt_env.execute("select batch")
-    # cat table/result/table_select_batch.csv
+    # cat /tmp/table_select_batch.csv
     # a,1
     # b,2
     # a,3

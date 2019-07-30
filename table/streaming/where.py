@@ -9,7 +9,7 @@ def where_streaming():
     s_env.set_parallelism(1)
     st_env = StreamTableEnvironment.create(s_env)
     source_file = os.getcwd() + "/../resources/table_orders.csv"
-    result_file = os.getcwd() + "/../result/table_where_streaming.csv"
+    result_file = "/tmp/table_where_streaming.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     st_env.register_table_source("Orders",
@@ -30,7 +30,7 @@ def where_streaming():
     result = orders.where("a === 'b'")
     result.insert_into("result")
     st_env.execute("where streaming")
-    # cat table/result/table_where_streaming.csv
+    # cat /tmp/table_where_streaming.csv
     # b,2,2,2013-01-01 00:24:13.0
     # b,4,5,2013-01-01 01:24:13.0
 
