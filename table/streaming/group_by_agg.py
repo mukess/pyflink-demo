@@ -94,5 +94,5 @@ def group_by_agg_streaming():
 
 if __name__ == '__main__':
     from table.prepare_environment import prepare_env
-    prepare_env()
+    prepare_env(need_upsert_sink=True)
     group_by_agg_streaming()
