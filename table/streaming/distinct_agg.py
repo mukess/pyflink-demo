@@ -1,5 +1,5 @@
 from pyflink.datastream import StreamExecutionEnvironment, TimeCharacteristic
-from pyflink.table import StreamTableEnvironment, DataTypes
+from pyflink.table import StreamTableEnvironment, DataTypes, EnvironmentSettings
 from pyflink.table.descriptors import Schema, Rowtime, Elasticsearch, Json, Kafka
 from pyflink.table.window import Tumble
 
@@ -8,7 +8,11 @@ def distinct_agg_streaming():
     s_env = StreamExecutionEnvironment.get_execution_environment()
     s_env.set_parallelism(1)
     s_env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
-    st_env = StreamTableEnvironment.create(s_env)
+    # use blink table planner
+    st_env = StreamTableEnvironment.create(s_env, environment_settings=EnvironmentSettings.new_instance()
+                                           .in_streaming_mode().use_blink_planner().build())
+    # use flink table planner
+    # st_env = StreamTableEnvironment.create(s_env)
     st_env \
         .connect(  # declare the external system to connect to
             Kafka()

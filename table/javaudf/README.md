@@ -31,15 +31,8 @@ cd aggregate-function; mvn clean package
 2. use python interpreter to run the code in scalar_func_demo.py or table_func_demo.py or aggregate_func_demo.py
 
 ### [optional] Run Job In Flink Cluster
-1. put the udf jars into the lib directory of build-target
-
-2. copy the opt/flink-table-*.jar to the lib directory of build-target
-
-```shell
-cd flink/build-target; cp opt/flink-table-*.jar lib/
-```
  
-3. start flink cluster. You can start the standard alone flink cluster:
+1. start flink cluster. You can start the standard alone flink cluster:
 
 ```shell
 bin/start-cluster.sh
@@ -47,16 +40,16 @@ bin/start-cluster.sh
 
 you need to cd to directory of build-target in flink source code.
 
-4. submit the python job:
+2. submit the python job:
 
 ```shell
-bin/flink run -py <pyflink-demo path>/table/javaudf/scalar_func_demo.py
+bin/flink run -py <pyflink-demo path>/table/javaudf/scalar_func_demo.py -jar <path/to/scalar-function-1.0.jar>
 ```
 
 ```shell
-bin/flink run -py <pyflink-demo path>/table/javaudf/table_func_demo.py
+bin/flink run -py <pyflink-demo path>/table/javaudf/table_func_demo.py -jar <path/to/table-function-1.0.jar>
 ```
 
 ```shell
-bin/flink run -py <pyflink-demo path>/table/javaudf/aggregate_func_demo.py.py
+bin/flink run -py <pyflink-demo path>/table/javaudf/aggregate_func_demo.py.py -jar <path/to/aggregate-function-1.0.jar>
 ```

@@ -1,15 +1,19 @@
 import os
 
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import StreamTableEnvironment, CsvTableSource, CsvTableSink, DataTypes
+from pyflink.table import StreamTableEnvironment, CsvTableSource, CsvTableSink, DataTypes, EnvironmentSettings
 
 
 def add_or_replace_columns_streaming():
     s_env = StreamExecutionEnvironment.get_execution_environment()
     s_env.set_parallelism(1)
-    st_env = StreamTableEnvironment.create(s_env)
-    source_file = os.getcwd() + "/../resources/table_orders.csv"
+    # use blink table planner
+    st_env = StreamTableEnvironment.create(s_env, environment_settings=EnvironmentSettings.new_instance()
+                                           .in_streaming_mode().use_blink_planner().build())
+    # use flink table planner
+    # st_env = StreamTableEnvironment.create(s_env)    source_file = os.getcwd() + "/../resources/table_orders.csv"
     result_file = "/tmp/table_add_or_replace_columns_streaming.csv"
+    source_file = os.getcwd() + "/../resources/table_orders.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
     st_env.register_table_source("Orders",
