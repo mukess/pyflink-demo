@@ -4,6 +4,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.table.sinks.RetractStreamTableSink;
 import org.apache.flink.table.sinks.TableSink;
@@ -31,7 +32,12 @@ public class TestRetractSink implements RetractStreamTableSink<Row> {
 
     @Override
     public void emitDataStream(DataStream<Tuple2<Boolean, Row>> dataStream) {
-        dataStream.addSink(new RowSink());
+        consumeDataStream(dataStream);
+    }
+
+    @Override
+    public DataStreamSink<?> consumeDataStream(DataStream<Tuple2<Boolean, Row>> dataStream) {
+        return dataStream.addSink(new RowSink());
     }
 
     @Override

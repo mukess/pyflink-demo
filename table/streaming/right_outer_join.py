@@ -1,5 +1,7 @@
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import StreamTableEnvironment
+from pyflink.table import StreamTableEnvironment, DataTypes
+
+from table.user_defined_sources_and_sinks.sinks.TestRetractSink import TestRetractSink
 
 
 def right_outer_join_streaming():
@@ -13,5 +15,24 @@ def right_outer_join_streaming():
                                  ["d", "e", "f"]).select("d, e, f")
 
     result = left.right_outer_join(right, "a = d").select("b, e")
-    # TODO: need retract table sink
+    # use custom retract sink connector
+    sink = TestRetractSink(["a", "b"],
+                           [DataTypes.STRING(),
+                            DataTypes.STRING()])
+    st_env.register_table_sink("sink", sink)
+    result.insert_into("sink")
     st_env.execute("right outer join streaming")
+    # (true, null, null)
+    # (true, null, 3b)
+    # (true, null, 4b)
+    # (false, null, 1b)
+    # (true, 1a, 1b)
+    # (false, null, 3b)
+    # (true, 1a, 3b)
+    # (false, null, null)
+    # (true, 2a, null)
+    # (true, 4b, null)
+
+
+if __name__ == '__main__':
+    right_outer_join_streaming()

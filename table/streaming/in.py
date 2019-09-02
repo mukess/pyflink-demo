@@ -1,5 +1,7 @@
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import StreamTableEnvironment
+from pyflink.table import StreamTableEnvironment, DataTypes
+
+from table.user_defined_sources_and_sinks.sinks.TestRetractSink import TestRetractSink
 
 
 def in_streaming():
@@ -16,9 +18,18 @@ def in_streaming():
     # another way
     # st_env.register_table("RightTable", right)
     # result = left.where("a.in(RightTable)")
-    # TODO: need retract table sink
-    result.insert_into("result")
+
+    # use custom retract sink connector
+    sink = TestRetractSink(["a", "b"],
+                           [DataTypes.STRING(),
+                            DataTypes.STRING()])
+    st_env.register_table_sink("sink", sink)
+    result.insert_into("sink")
     st_env.execute("in streaming")
+    # (true, ra, raa)
+    # (true, lb, lbb)
+    # (true, lb, lbb)
+    # (true,, lcc)
 
 
 if __name__ == '__main__':

@@ -1,55 +1,15 @@
-# UDF
-This page helps users to use udf in pyflink
+# User-defined Sources & Sinks
+This page helps users to custom create sources & sinks
 
-## Build UDF
+## Build Sources & Sinks
 
-### Scalar Function
-The example of Scalar Function lives in scalar-function. You need to build this code:
-
-```shell
-cd scalar-function; mvn clean package
-```
-
-### Table Function
-The example of Scalar Function lives in scalar-function. You need to build this code:
+### Custom Sink
+The example of custom restract table sink lives in sinks module. You need to build this code:
 
 ```shell
-cd table-function; mvn clean package
+cd sinks; mvn clean package
 ```
 
-### Aggregate Function
-The example of Scalar Function lives in scalar-function. You need to build this code:
+1.put jar(source or sink jar) into Python site-packages/pyflink/lib directory
+2.create your python code wrapped the java class(you can refer to TestRetractSink.py)
 
-```shell
-cd aggregate-function; mvn clean package
-```
-
-## Run Java UDF In PyFlink
-
-### [optional] Run In Local PVM(Python Virtual Machine)
-1. put udf jar(scalar-function-1.0.jar, table-function-1.0.jar, aggregate-function-1.0.jar) in Python site-packages/pyflink/lib directory
-2. use python interpreter to run the code in scalar_func_demo.py or table_func_demo.py or aggregate_func_demo.py
-
-### [optional] Run Job In Flink Cluster
- 
-1. start flink cluster. You can start the standard alone flink cluster:
-
-```shell
-bin/start-cluster.sh
-```
-
-you need to cd to directory of build-target in flink source code.
-
-2. submit the python job:
-
-```shell
-bin/flink run -py <pyflink-demo path>/table/javaudf/scalar_func_demo.py -jar <path/to/scalar-function-1.0.jar>
-```
-
-```shell
-bin/flink run -py <pyflink-demo path>/table/javaudf/table_func_demo.py -jar <path/to/table-function-1.0.jar>
-```
-
-```shell
-bin/flink run -py <pyflink-demo path>/table/javaudf/aggregate_func_demo.py.py -jar <path/to/aggregate-function-1.0.jar>
-```
