@@ -10,6 +10,7 @@ The example of custom restract table sink lives in sinks module. You need to bui
 cd sinks; mvn clean package
 ```
 
-1.put jar(source or sink jar) into Python site-packages/pyflink/lib directory
-2.create your python code wrapped the java class(you can refer to TestRetractSink.py)
+1. put jar(source or sink jar) into Python site-packages/pyflink/lib directory
+
+2. create your python code wrapped the java class(you can refer to TestRetractSink.py)
 
