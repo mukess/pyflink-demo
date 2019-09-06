@@ -99,6 +99,10 @@ def custom_test_source_demo():
     orders = st_env.scan("source")
     orders.insert_into("result")
     st_env.execute("custom test source demo")
+    # cat /tmp/custom_test_source_demo.csv
+    # haha
+    # haha
+    # haha
 
 
 def custom_test_sink_demo():
