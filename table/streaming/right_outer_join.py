@@ -1,7 +1,7 @@
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import StreamTableEnvironment, DataTypes
 
-from table.user_defined_sources_and_sinks.sinks.TestRetractSink import TestRetractSink
+from table.user_defined_sources_and_sinks.TestRetractSink import TestRetractSink
 
 
 def right_outer_join_streaming():

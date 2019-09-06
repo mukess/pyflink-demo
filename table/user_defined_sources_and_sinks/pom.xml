@@ -23,7 +23,7 @@ under the License.
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.flink.table</groupId>
-    <artifactId>user-defined-sources</artifactId>
+    <artifactId>user-defined-connectors</artifactId>
     <version>1.0</version>
 
     <packaging>jar</packaging>

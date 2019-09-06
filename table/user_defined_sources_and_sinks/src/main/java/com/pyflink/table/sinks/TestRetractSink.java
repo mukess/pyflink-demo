@@ -1,4 +1,4 @@
-package com.pyflink.table;
+package com.pyflink.table.sinks;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
