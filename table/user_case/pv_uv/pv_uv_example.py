@@ -73,13 +73,15 @@ def pv_uv_demo():
     st_env.connect(custom_connector) \
         .with_schema(
         Schema()
+            .field("startTime", DataTypes.TIMESTAMP())
+            .field("endTime", DataTypes.TIMESTAMP())
             .field("pv", DataTypes.BIGINT())
             .field("uv", DataTypes.BIGINT())
     ).register_table_sink("sink")
 
     st_env.scan("source").window(Tumble.over("1.hours").on("rowtime").alias("w")) \
         .group_by("w") \
-        .select("COUNT(1) as pv, user_id.count.distinct as uv").insert_into("sink")
+        .select("w.start as startTime, w.end as endTime, COUNT(1) as pv, user_id.count.distinct as uv").insert_into("sink")
 
     st_env.execute("table pv uv")
 

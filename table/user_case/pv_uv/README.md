@@ -164,7 +164,7 @@ ij> connect 'jdbc:derby://localhost:1527/firstdb;create=true';
 Next, you need to create the result table pv_uv_table in the ij terminal:
 
 ```shell
-ij> create table pv_uv_table(pv bigint,uv bigint);
+ij> create table pv_uv_table(startTime TIMESTAMP,endTime TIMESTAMP,pv bigint,uv bigint);
 ```
 
 Finally, you need to put the derby.jar, derbyclient.jar and derbytools.jar in db-derby-10.14.2.0-bin/lib into the Python directory of site-package/pyflink/lib
@@ -215,16 +215,16 @@ you can see the result in the ij terminal:
 
 ```shell
 ij> select * from pv_uv_table;
-PV                  |UV
------------------------------------------
-47244               |30837
-53902               |35261
-53135               |35302
-49863               |33537
-54305               |35748
-56718               |36934
-58324               |37763
-58672               |37961
+STARTTIME                    |ENDTIME                      |PV                  |UV
+-----------------------------------------------------------------------------------------------------
+2017-11-26 01:00:00.0        |2017-11-26 02:00:00.0        |47244               |30837
+2017-11-26 02:00:00.0        |2017-11-26 03:00:00.0        |53902               |35261
+2017-11-26 03:00:00.0        |2017-11-26 04:00:00.0        |53135               |35302
+2017-11-26 04:00:00.0        |2017-11-26 05:00:00.0        |49863               |33537
+2017-11-26 05:00:00.0        |2017-11-26 06:00:00.0        |54305               |35748
+2017-11-26 06:00:00.0        |2017-11-26 07:00:00.0        |56718               |36934
+2017-11-26 07:00:00.0        |2017-11-26 08:00:00.0        |58324               |37763
+2017-11-26 08:00:00.0        |2017-11-26 09:00:00.0        |58672               |37961
 
 已选择 8 行
 ```
